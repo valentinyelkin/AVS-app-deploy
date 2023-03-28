@@ -1,7 +1,6 @@
-import { DataSource } from 'typeorm';
+import { join } from 'path';
 
-import { User } from '../entity/user.entity';
-import { Initialize1680012106409 } from '../migrations/1680012106409-Initialize';
+import { DataSource } from 'typeorm';
 
 export default new DataSource({
   driver: undefined,
@@ -11,8 +10,8 @@ export default new DataSource({
   username: 'postgres',
   password: '123123123',
   database: 'banda-deploy',
-  entities: [User],
-  migrations: [Initialize1680012106409],
+  entities: ['./src/**/*.entity.ts'],
+  migrations: [join(__dirname, '../seeds/*.{t,j}s')],
   migrationsRun: true,
   synchronize: false,
 });
