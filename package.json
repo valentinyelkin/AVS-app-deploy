@@ -18,6 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+
     "run:docker": "docker-compose -f docker-compose.local.yaml up -d",
     "migration:generate": "typeorm-ts-node-esm migration:generate ./src/migrations/$NAME  -d ./src/config/typeorm.config.ts -p",
     "migration:generate:windows": "typeorm-ts-node-esm migration:generate ./src/migrations/%npm_config_NAME% -d ./src/config/typeorm.config.ts -p",
@@ -36,6 +37,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.2.1",
     "@nestjs/typeorm": "^9.0.1",
+    "@types/multer": "^1.4.7",
     "aws-sdk": "^2.1344.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

@@ -3,10 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { S3 } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
+import { DataSource } from 'typeorm';
 
 import { AppConfigModule } from '../../config/app/app.config.module';
 import { AwsConfig } from '../../config/aws.config';
 import LoggerMiddleware from '../../middleware/logger/logger.middleware';
+import { FilesModule } from '../files/files.module';
 import { UserModule } from '../user/user.module';
 
 import { AppController } from './app.controller';
@@ -57,11 +59,13 @@ import { AppService } from './app.service';
       services: [S3],
     }),
       UserModule,
+      FilesModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
+  constructor(private dataSource: DataSource) {}
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
