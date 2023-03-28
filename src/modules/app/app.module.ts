@@ -7,6 +7,7 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { AppConfigModule } from '../../config/app/app.config.module';
 import { AwsConfig } from '../../config/aws.config';
 import LoggerMiddleware from '../../middleware/logger/logger.middleware';
+import { UserModule } from '../user/user.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -54,7 +55,8 @@ import { AppService } from './app.service';
         },
       },
       services: [S3],
-    })
+    }),
+      UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
