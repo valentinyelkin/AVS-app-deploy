@@ -10,7 +10,7 @@ export default new DataSource({
   username: 'postgres',
   password: '123123123',
   database: 'banda-deploy',
-  entities: ['./src/**/*.entity.ts'],
+  entities: ['./src/**/*.entities.ts'],
   migrations: [join(__dirname, '../seeds/*.{t,j}s')],
   migrationsRun: true,
   synchronize: false,

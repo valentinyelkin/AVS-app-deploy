@@ -31,7 +31,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Banda Deploy')
-    .setDescription('Base api with user entity and file upload ')
+    .setDescription('Base api with user entities and file upload ')
     .setVersion('1.0.0')
     .addTag('')
     .build();
