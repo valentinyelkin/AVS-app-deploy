@@ -6,7 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "deploy": "npm install && npm run build && npm run start:dev",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -31,7 +30,8 @@
     "module:generate": "nx g @nrwl/nest:resource ./modules/$NAME --project api",
     "module:generate:windows": "nx g @nrwl/nest:resource ./modules/%npm_config_NAME% --project api",
     "migration:create": "typeorm migration:create ./src/migrations/$NAME",
-    "migration:create:windows": "typeorm migration:create ./src/migrations/%npm_config_NAME%"
+    "migration:create:windows": "typeorm migration:create ./src/migrations/%npm_config_NAME%",
+    "deploy": "npm ci && npm run build && npm run start:prod"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
