@@ -14,7 +14,7 @@ import { AppModule } from './modules/app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: ['http://localhost:3333'],
+      origin: ['http://localhost:3333', 'https://34.228.162.250:3333'],
     },
   });
 
@@ -38,8 +38,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 
-  await app.listen(`https://34.228.162.250/${port}`);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+  await app.listen(`https://34.228.162.250:${port}`);
+  Logger.log(`🚀 Application is running on: https://34.228.162.250:${port}/${globalPrefix}`);
 }
 
 bootstrap();
