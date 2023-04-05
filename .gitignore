@@ -36,3 +36,5 @@ lerna-debug.log*
 
 # AVS - Local-minio
 /storage
+
+.env

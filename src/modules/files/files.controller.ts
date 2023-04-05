@@ -99,4 +99,15 @@ export class FilesController {
     await this.s3Service.upload(fileName, file.buffer);
 
   }
+
+  @HttpCode(204)
+  @ApiBadRequestResponse({ description: FileResponseMessageEnum.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: FileResponseMessageEnum.NOT_FOUND })
+  @ApiOperation({ summary: 'Delete file by id' })
+  @ApiOkResponse()
+  @ApiFile()
+  @Patch(':id')
+  async delete(@Param('id', ParseIntPipe) id: string) {
+    return await this.s3Service.deleteFile(id);
+  }
 }
