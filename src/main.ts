@@ -10,6 +10,10 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './modules/app/app.module';
+const retrieveSecrets =  require("../src/config/env.config");
+
+const dotenv = require('dotenv')
+const fs = require('fs/promises');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -38,7 +42,19 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 
-  await app.listen(port);
+  await app.listen(port, async () => {
+    try {
+      const secretsString = await retrieveSecrets();
+
+      await fs.writeFile(".env", secretsString);
+
+      dotenv.config();
+
+    } catch (error) {
+      console.log("Error in setting environment variables", error);
+      process.exit(-1);
+    }
+  });
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
