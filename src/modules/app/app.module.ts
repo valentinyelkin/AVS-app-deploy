@@ -46,26 +46,33 @@ import { AppService } from './app.service';
             region: awsConfig.s3Region,
             ...(awsConfig.localEndpoint
               ? {
-                  endpoint: awsConfig.localEndpoint,
-                  s3ForcePathStyle: true,
-                  signatureVersion: 'v4',
-                  accessKeyId: awsConfig.accessKey,
-                  secretAccessKey: awsConfig.secretKey,
-                }
-              : {}),
+                endpoint: awsConfig.localEndpoint,
+                s3ForcePathStyle: true,
+                signatureVersion: 'v4',
+                accessKeyId: awsConfig.accessKeyId,
+                secretAccessKey: awsConfig.secretAssessKey,
+              }
+              : {
+                // endpoint: awsConfig.localEndpoint,
+                s3ForcePathStyle: true,
+                signatureVersion: 'v4',
+                accessKeyId: awsConfig.accessKeyId,
+                secretAccessKey: awsConfig.secretAssessKey,
+              }),
           };
         },
       },
       services: [S3],
     }),
-      UserModule,
-      FilesModule
+    UserModule,
+    FilesModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
