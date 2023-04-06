@@ -16,6 +16,20 @@ const dotenv = require('dotenv')
 const fs = require('fs/promises');
 
 async function bootstrap() {
+  try {
+    console.log('start')
+    const secretsString = await retrieveSecrets();
+
+    await fs.writeFile(".env", secretsString);
+
+    dotenv.config();
+
+    console.log('end');
+  } catch (error) {
+    console.log("Error in setting environment variables", error);
+    process.exit(-1);
+  }
+
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: ['http://localhost:3333'],
@@ -42,19 +56,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 
-  await app.listen(port, async () => {
-    try {
-      const secretsString = await retrieveSecrets();
-
-      await fs.writeFile(".env", secretsString);
-
-      dotenv.config();
-
-    } catch (error) {
-      console.log("Error in setting environment variables", error);
-      process.exit(-1);
-    }
-  });
+  await app.listen(port, async () => {});
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
