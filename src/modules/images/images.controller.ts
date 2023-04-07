@@ -6,6 +6,7 @@ import {
   Post,
   Patch,
   Param,
+  Delete,
   HttpCode,
   ParseIntPipe,
   Logger,
@@ -19,28 +20,29 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiOperation, ApiResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { AWSError } from 'aws-sdk';
 import { Response, Express } from 'express';
 import { extension } from 'mime-types';
-
 import { FileResponseMessageEnum } from '../../common/enums/file-response-message.enum';
+
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
-import { ApiFile } from './decorator/api-file.decorator';
-import { FileResponseDto } from './dto/files.dto';
+import { ApiFile,   } from './decorator/api-file.decorator';
+import { ImageResponseDto } from './dto/images.dto';
+import { ImagesService } from './images.service';
 
-@ApiTags('files')
-@Controller('files')
-export class FilesController {
-  private readonly logger = new Logger(FilesController.name);
+@ApiTags('images')
+@Controller('images')
+export class ImagesController {
+  private readonly logger = new Logger(ImagesController.name);
 
-  constructor(private s3Service: S3ManagerService) {}
+  constructor(private s3Service: S3ManagerService, private readonly imagesService: ImagesService) {}
 
-  @ApiOperation({ summary: 'Add new file' })
-  @ApiOkResponse({ type: FileResponseDto })
+  @ApiOperation({ summary: 'Add new Images' })
+  @ApiOkResponse({ type: ImageResponseDto })
   @HttpCode(201)
   @ApiFile()
   @Post('/upload')
@@ -54,26 +56,32 @@ export class FilesController {
     const { mimetype: mimeType } = await file;
     const fileName = `${randomUUID()}.${extension(mimeType)}`;
 
-    const newFile = await this.s3Service.upload(fileName, file.buffer);
+    await this.s3Service.upload(fileName, file.buffer);
 
-    this.logger.debug(`Successfully created file: ${fileName}`);
-    return newFile;
+    const createdFile = await this.imagesService.uploadFile(fileName);
+
+    this.logger.debug(`Successfully created image: ${fileName}`);
+    return createdFile;
   }
 
   @HttpCode(200)
-  @ApiResponse({ type: Buffer })
   @ApiBadRequestResponse({ description: FileResponseMessageEnum.BAD_REQUEST })
   @ApiNotFoundResponse({ description: FileResponseMessageEnum.NOT_FOUND })
-  @ApiOperation({ summary: 'Get file by id' })
+  @ApiOperation({ summary: 'Get image by id' })
   @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res: Response): Promise<Response> {
+  async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: Response): Promise<Response> {
+    const image = await this.imagesService.findOne(id);
+
+    if (!image) {
+      throw new NotFoundException();
+    }
+
     try {
-      await this.s3Service.headObject(id);
+      const { name } = image;
 
-      const file = this.s3Service.getObject(id);
+      await this.s3Service.headObject(name);
 
-      console.log(file, 'file');
-      return file.pipe(res)
+      return this.s3Service.getObject(name).pipe(res);
     } catch (e) {
       throw (e as AWSError).statusCode === 404
         ? new NotFoundException(FileResponseMessageEnum.NOT_FOUND)
@@ -83,12 +91,14 @@ export class FilesController {
 
   @ApiBadRequestResponse({ description: FileResponseMessageEnum.BAD_REQUEST })
   @ApiNotFoundResponse({ description: FileResponseMessageEnum.NOT_FOUND })
-  @ApiOperation({ summary: 'Update file by id' })
-  @ApiOkResponse({ type: FileResponseDto })
+  @ApiOperation({ summary: 'Update image by id' })
+  @ApiOkResponse({ type: ImageResponseDto })
   @ApiFile()
   @Patch(':id')
-  async update(@UploadedFile() file: Express.Multer.File, @Param('id', ParseIntPipe) id: string) {
-    await this.s3Service.deleteFile(id);
+  async update(@UploadedFile() file: Express.Multer.File, @Param('id', ParseIntPipe) id: number) {
+    const olfFile = await this.imagesService.findOneById(id);
+
+    await this.s3Service.deleteFile(olfFile.name);
 
     if (!file) {
       throw new BadRequestException(FileResponseMessageEnum.PROVIDE_FILE);
@@ -98,16 +108,19 @@ export class FilesController {
 
     await this.s3Service.upload(fileName, file.buffer);
 
+    return this.imagesService.update(id, fileName);
   }
 
   @HttpCode(204)
   @ApiBadRequestResponse({ description: FileResponseMessageEnum.BAD_REQUEST })
   @ApiNotFoundResponse({ description: FileResponseMessageEnum.NOT_FOUND })
-  @ApiOperation({ summary: 'Delete file by id' })
-  @ApiOkResponse()
-  @ApiFile()
-  @Patch(':id')
-  async delete(@Param('id', ParseIntPipe) id: string) {
-    return await this.s3Service.deleteFile(id);
+  @ApiOperation({ summary: 'Delete image by id' })
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const file = await this.imagesService.findOneById(id);
+
+    await this.imagesService.remove(id);
+
+    await this.s3Service.deleteFile(file.name);
   }
 }

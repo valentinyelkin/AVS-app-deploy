@@ -8,7 +8,7 @@ import { DataSource } from 'typeorm';
 import { AppConfigModule } from '../../config/app/app.config.module';
 import { AwsConfig } from '../../config/aws.config';
 import LoggerMiddleware from '../../middleware/logger/logger.middleware';
-import { FilesModule } from '../files/files.module';
+import { ImagesModule } from '../images/images.module';
 import { UserModule } from '../user/user.module';
 
 import { AppController } from './app.controller';
@@ -65,7 +65,7 @@ import { AppService } from './app.service';
       services: [S3],
     }),
     UserModule,
-    FilesModule
+    ImagesModule
   ],
   controllers: [AppController],
   providers: [AppService],
